@@ -1,0 +1,144 @@
+# Custom Scalars for Validation
+scalar Latitude    # Float between -90 and 90
+scalar Longitude   # Float between -180 and 180
+scalar Angle       # Float representing an angle in degrees
+scalar NonnegativeFloat  # Non-negative Float
+scalar Priority    # Int between 1 and 5
+scalar Quality     # Int between 0 and 5
+
+# Basic Elements
+type Point {
+  Latitude: Latitude!
+  Longitude: Longitude!
+}
+
+input PointInput {
+  Latitude: Latitude!
+  Longitude: Longitude!
+}
+
+type Path {
+  startPoint: Point!
+  endPoint: Point!
+}
+
+input PathInput {
+  startPoint: PointInput!
+  endPoint: PointInput!
+}
+
+# Navigation Elements
+type Target {
+  name: String!
+  point: Point!
+  priority: Priority!
+  quality: Quality!
+  photoDirection: String
+}
+
+input TargetInput {
+  name: String!
+  point: PointInput!
+  priority: Priority!
+  quality: Quality!
+  photoDirection: String
+}
+
+type TargetInfo {
+  path: Path!
+  target: Target!
+}
+
+input TargetInfoInput {
+  path: PathInput!
+  target: TargetInput!
+}
+
+type Leg {
+  path: Path!
+  altitude: Float
+  targetInfo: [TargetInfo!]
+}
+
+input LegInput {
+  path: PathInput!
+  altitude: Float
+  targetInfo: [TargetInfoInput!]
+}
+
+type Arc {
+  radius: NonnegativeFloat!
+  centerPoint: Point!
+  clockwise: Boolean!   # True if the arc is drawn in a clockwise direction
+  startAngle: Angle!
+  endAngle: Angle!
+}
+
+input ArcInput {
+  radius: NonnegativeFloat!
+  centerPoint: PointInput!
+  clockwise: Boolean!
+  startAngle: Angle!
+  endAngle: Angle!
+}
+
+type FullPath {
+  legs: [Leg!]!
+  arcs: [Arc!]!
+  tangentLines: [Path!]!
+}
+
+input FullPathInput {
+  legs: [LegInput!]!
+  arcs: [ArcInput!]!
+  tangentLines: [PathInput!]!
+}
+
+# Main Field Type
+type Field {
+  flyZone: [Point!]
+  targets: [Target!]
+  entryPath: Path
+  exitPath: Path
+  speed: NonnegativeFloat
+  altitude: Float
+  windDirection: Angle
+  windSpeed: NonnegativeFloat
+  photoDelayAtStart: NonnegativeFloat
+  radius: NonnegativeFloat
+  legs: [Leg!]
+  arcs: [Arc!]
+  tangentLines: [Path!]
+  source: String!
+  name: String!
+  timestamp: String!
+}
+
+# Input Type for Mutation
+input SaveQueryInput {
+  flyZone: [PointInput!]
+  targets: [TargetInput!]
+  entryPath: PathInput
+  exitPath: PathInput
+  speed: NonnegativeFloat
+  altitude: Float
+  windDirection: Angle
+  windSpeed: NonnegativeFloat
+  photoDelayAtStart: NonnegativeFloat
+  radius: NonnegativeFloat
+  legs: [LegInput!]
+  arcs: [ArcInput!]
+  tangentLines: [PathInput!]
+  source: String!
+  name: String!
+}
+
+# Mutation and Query Types
+type Mutation {
+  saveQuery(input: SaveQueryInput!): String
+}
+
+type Query {
+  retrieveRecentHistory(limit: Int): [Field!]
+  retrieveQuery(name: String!): Field
+}
