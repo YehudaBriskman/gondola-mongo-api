@@ -22,7 +22,7 @@ app = Flask(__name__)
 
 CORS(app)
 
-host_ip = "10.0.0.98"
+host_ip = "127.0.0.1"
 host_port = 27017
 database_name = "Gondola"
 app.config["MONGO_URI"] = f"mongodb://{host_ip}:{host_port}/{database_name}"
